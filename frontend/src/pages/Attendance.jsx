@@ -3,6 +3,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Card } from '@/components/core/Card';
 import { Button } from '@/components/core/Button';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { getSessions } from '@/lib/dashboard';
 import { AttendanceSessionPanel } from '@/components/dashboard/AttendanceSessionPanel';
 import { 
@@ -16,8 +17,9 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function Attendance() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [sessions, setSessions] = useState([]);
+  const [studentAttendance, setStudentAttendance] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -30,15 +32,72 @@ export function Attendance() {
   const loadSessions = async () => {
     setLoading(true);
     try {
-      const data = await getSessions(user.id);
-      // Filter for today's sessions or show all for now
-      setSessions(data);
+      if (role === 'mentor') {
+        const data = await getSessions(user.id);
+        setSessions(data);
+      } else {
+        // Fetch student attendance
+        const { data } = await supabase
+          .from('attendance')
+          .select('*, session:sessions(title, start_time, subject, branch, year)')
+          .eq('student_id', user.id)
+          .order('date', { ascending: false });
+        setStudentAttendance(data || []);
+      }
     } catch (err) {
-      console.error('Error loading sessions:', err);
+      console.error('Error loading attendance:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  if (role === 'student') {
+    return (
+      <PageContainer>
+        <div className="mb-12">
+          <h1 className="text-display-lg text-white mb-2">Attendance History</h1>
+          <p className="text-body-lg text-fg-secondary">Track your session presence and analyze trends.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            [1, 2, 3].map(i => <div key={i} className="h-48 rounded-2xl bg-surface/30 animate-pulse" />)
+          ) : studentAttendance.length > 0 ? (
+            studentAttendance.map(record => (
+              <Card key={record.id} className="p-6 border-border-subtle bg-surface/20 transition-all">
+                <div className="flex justify-between items-start mb-6">
+                  <div className={`p-3 rounded-xl ${record.status === 'present' ? 'bg-success/10 text-success' : record.status === 'late' ? 'bg-warning/10 text-warning' : 'bg-danger/10 text-danger'}`}>
+                    <CheckSquare size={24} />
+                  </div>
+                  <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${record.status === 'present' ? 'text-success border border-success/30' : record.status === 'late' ? 'text-warning border border-warning/30' : 'text-danger border border-danger/30'}`}>
+                    {record.status}
+                  </div>
+                </div>
+                
+                <h3 className="text-h3 text-white mb-1">{record.session?.title}</h3>
+                <p className="text-micro text-fg-tertiary uppercase tracking-widest mb-6">{record.session?.subject || 'General Session'}</p>
+                
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-border-subtle/50">
+                  <div className="flex items-center gap-2 text-micro text-fg-secondary uppercase tracking-widest">
+                    <Calendar size={14} />
+                    {new Date(record.date).toLocaleDateString()}
+                  </div>
+                </div>
+              </Card>
+            ))
+          ) : (
+            <div className="col-span-full py-20 text-center bg-surface/10 rounded-3xl border border-dashed border-border-subtle">
+              <AlertCircle size={48} className="mx-auto text-fg-tertiary mb-4 opacity-20" />
+              <h3 className="text-h3 text-fg-secondary">No attendance recorded</h3>
+              <p className="text-body text-fg-tertiary max-w-sm mx-auto mt-2">
+                Attend your first session to start building your record.
+              </p>
+            </div>
+          )}
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>

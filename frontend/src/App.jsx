@@ -11,6 +11,7 @@ import { Attendance } from '@/pages/Attendance';
 import { Students } from '@/pages/Students';
 import { Materials } from '@/pages/Materials';
 import { Upload } from '@/pages/Upload';
+import { StudentPortal } from '@/pages/StudentPortal';
 import MentorDashboard from '@/pages/MentorDashboard';
 import { AttendanceSessionPanel } from '@/components/dashboard/AttendanceSessionPanel';
 import { useAuth } from '@/context/AuthContext';
@@ -28,15 +29,6 @@ const Button = ({ children, onClick, className }) => (
   </button>
 );
 
-const StudentPortal = () => {
-  const { profile } = useAuth();
-  return (
-    <div className="p-12">
-      <h1 className="text-display-md text-white mb-2">Student Portal</h1>
-      <p className="text-body-lg text-fg-secondary">Welcome, {profile?.full_name}. Your journey details are being synced.</p>
-    </div>
-  );
-};
 
 const PlaceholderPage = ({ title }) => (
   <div className="p-12">
@@ -82,7 +74,7 @@ function App() {
         } />
 
         <Route path="/attendance" element={
-          <ProtectedRoute allowedRoles={['mentor']}>
+          <ProtectedRoute>
             <AppShell>
               <Attendance />
             </AppShell>

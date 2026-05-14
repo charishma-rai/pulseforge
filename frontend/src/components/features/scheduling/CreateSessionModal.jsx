@@ -45,8 +45,22 @@ export function CreateSessionModal({ isOpen, onClose, onSuccess }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create New Session">
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <Modal 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title="Create New Session"
+      footer={
+        <Button 
+          type="submit" 
+          form="session-form" 
+          className="w-full h-12 text-void font-bold shadow-focus" 
+          disabled={isLoading}
+        >
+          {isLoading ? <Loader2 className="animate-spin" /> : 'CREATE SESSION'}
+        </Button>
+      }
+    >
+      <form id="session-form" onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2 col-span-2">
             <label className="text-label text-fg-tertiary uppercase tracking-widest">Session Title</label>
@@ -164,9 +178,6 @@ export function CreateSessionModal({ isOpen, onClose, onSuccess }) {
           <label htmlFor="attendance" className="text-body-sm text-fg-secondary cursor-pointer">Enable Attendance Marking for this session</label>
         </div>
 
-        <Button type="submit" className="w-full h-12 text-void font-bold" disabled={isLoading}>
-          {isLoading ? <Loader2 className="animate-spin" /> : 'CREATE SESSION'}
-        </Button>
       </form>
     </Modal>
   );

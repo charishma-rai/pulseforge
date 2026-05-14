@@ -102,7 +102,7 @@ export function AttendancePulse({ avgAttendance, isLoading }) {
         </div>
         <div className="flex flex-col items-center justify-center h-[200px] text-center border border-dashed border-border-subtle rounded-2xl bg-void/20">
           <p className="text-micro text-fg-tertiary uppercase tracking-widest px-6 leading-relaxed">
-            No critical <br />absenteeism alerts <br />today.
+            No attendance <br />insights available <br />yet.
           </p>
         </div>
       </Card>

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
 import { Button } from './Button';
 
-export function Modal({ isOpen, onClose, title, children, className }) {
+export function Modal({ isOpen, onClose, title, children, footer, className }) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -45,6 +45,7 @@ export function Modal({ isOpen, onClose, title, children, className }) {
               </Button>
             </div>
             <div className="overflow-y-auto pr-2 custom-scrollbar flex-1">{children}</div>
+            {footer && <div className="pt-6 mt-auto shrink-0">{footer}</div>}
           </motion.div>
         </div>
       )}
